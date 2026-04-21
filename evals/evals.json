@@ -1,0 +1,26 @@
+{
+  "skill_name": "opruim-uurtje",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "dry_run_april_2026",
+      "prompt": "Voer het maandelijkse Opruim Uurtje uit voor april 2026 in dry-run mode. Mount de klantenmappen, scan alles, pas alle 8 regels toe, en genereer het rapport met zware bestanden. Laat mij zien wat zou verwijderd worden en wat het zou besparen.",
+      "expected_output": "Excel-rapport met dry-run statistieken: aantal items per regel, ruimte bespaard, top zware bestanden. Samenvatting in chat met metrics.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "pdf_versioning_rule1",
+      "prompt": "Controleer of je Regel 1 (tussenversie PDFs) correct toepast. Een testproject met meerdere PDF-versies: 1-5 WEB design files, 1-3 HR merkbestanden. Beide prefixes zijn aanwezig. Je moet alleen de hoogste versie per groep behouden.",
+      "expected_output": "Rapport toont dat versies 1-4 WEB designs verwijderd zijn, alleen 5 behouden. Versies 1-2 HR bestanden verwijderd, alleen 3 behouden. Geen verwijderingen buiten deze PDF-map.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "materiaal_protection",
+      "prompt": "Test dat materialenmappen NOOIT verwijderd worden. Scenario: een project met >5 jaar oude bestanden in materialen/huisstijl/, maar ook in normaal project. Materialen moet blijven, project kan weg (R5/R3).",
+      "expected_output": "Rapport toont dat Materialen-map is gespaard, maar projectmap van >5 jaar oud is verwijderd. Materialen moet dus nog aanwezig zijn in eindrapport.",
+      "files": []
+    }
+  ]
+}
