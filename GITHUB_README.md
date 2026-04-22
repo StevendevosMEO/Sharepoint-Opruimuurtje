@@ -1,167 +1,128 @@
-# 📦 SharePoint Opruimenuurtje
+# SharePoint Opruimenuurtje v2
 
-> Automatische maandelijkse opschoning van SharePoint klantenmappen
+🧹 **Automatically clean up MEO SharePoint without syncing terabytes of data locally.**
 
-Een Claude AI skill voor MEO (Design & Communication Bureau) die automatisch verouderde bestanden, PDF-versies, en lege mappen uit SharePoint klantenmappen verwijdert, met bescherming voor essentiële materialenmappen.
+Direct Microsoft Graph API access + 8 intelligent cleanup rules + monthly scheduling.
 
-## 🎯 Functies
+## Features
 
-- ✅ **8 opschoonregels** met gedetailleerde logica
-- ✅ **PDF-versioning** - bewaar alleen de nieuwste versies
-- ✅ **PSD cleanup** - verwijder design-bestanden als PDFs klaar zijn
-- ✅ **Oude projecten** - verwijder volledige projectmappen >3 jaar
-- ✅ **Heavy file scan** - inventariseer bestanden >200MB ter beoordeling
-- ✅ **Dry-run mode** - veilig testen zonder te verwijderen
-- ✅ **Excel-rapportage** - gedetailleerde statistieken en bevindingen
-- ✅ **Email-notificatie** - automatische samenvatting naar stakeholder
-- ✅ **Materialen-bescherming** - huisstijl en templates nooit automatisch verwijderd
+✨ **Direct API Access** - No OneDrive synchronization needed  
+✨ **26 Klantenmappen** - A through Z scanned automatically  
+✨ **Intelligent Protection** - materialenmappen and standards never deleted  
+✨ **8 Cleanup Rules** - Different strategies for different file types  
+✨ **Full Reporting** - Excel exports + email summaries  
+✨ **Dry-Run Mode** - Safe preview before execution  
+✨ **Monthly Scheduling** - Automated or manual trigger  
 
-## 📋 Opschoonregels
+## Quick Start
 
-| Regel | Beschrijving | Drempel |
-|-------|-------------|---------|
-| R1 | Tussenversie PDFs | >90 dagen + beide HR+WEB aanwezig |
-| R2 | PSD-bestanden | >90 dagen in oude projecten |
-| R3 | Oude projectmappen | >1095 dagen (3 jaar) |
-| R5 | Inactieve klantmappen | >1825 dagen (5 jaar) |
-| R6 | Grote pre-2025 bestanden | >10MB, video/archief/tiff/psd/pptx |
-| R7 | Klanten-Documenten | opschonen volgens R3+R6 |
-| R8 | Lege mappen | >180 dagen oud, recursief |
-
-## 🚀 Quick Start
-
-### Installation (Cowork/Claude Code)
-
-1. Clone of download deze repository
-2. Plaats de `sharepoint-opruimenuurtje/` map in je Cowork skills folder
-3. Reload Cowork
-
-### First Use
-
+### Installation
 ```bash
-# Dry-run (safe test - nothing deleted)
-"opruim uurtje"
-
-# Schedule monthly (first of month, 10 PM)
-/schedule "opruim uurtje" -- monthly on 1st at 22:00
-
-# With custom prefixes
-"opruim uurtje met HR + INT prefixes"
-
-# With larger file threshold
-"opruim uurtje maar >20MB voor regel 6"
+git clone https://github.com/[your-org]/sharepoint-opruimenuurtje-v2.git
+cd sharepoint-opruimenuurtje-v2
+pip install -r requirements.txt
 ```
 
-## 📊 Dry-Run Test Results
-
-Test datum: 21-04-2026
-
-**Zou worden verwijderd:**
-- 60 items totaal
-- 2.24 GB ruimte
-
-**Per regel:**
-| Regel | Items | Ruimte |
-|-------|-------|--------|
-| R1 (PDF vers.) | 12 | 145.3 MB |
-| R2 (PSD) | 8 | 287.6 MB |
-| R3 (Old proj.) | 2 | 1234.8 MB |
-| R6 (Large pre-25) | 15 | 623.4 MB |
-| R8 (Empty) | 23 | 0 MB |
-
-**Zware bestanden ter beoordeling:**
-- 892.5 MB video (2026)
-- 567.3 MB Photoshop (2026)
-- 445.2 MB PowerPoint (2025)
-- 234.8 MB archief (2025)
-
-## ⚙️ Configuratie
-
-### Timing Thresholds
-```
->3 maanden = 90 dagen
->3 jaar = 1095 dagen
->5 jaar = 1825 dagen
->6 maanden lege mappen = 180 dagen
+### First Time Setup
+```bash
+python scripts/graph-cleanup.py --setup
+# Browser opens for SharePoint authentication (OAuth)
+# Approved once, automatic forever after
 ```
 
-### Default Prefixes (R1)
-```
-HR, WEB, INT
-```
+### Monthly Cleanup
+```bash
+# Preview changes
+python scripts/graph-cleanup.py --dry-run
 
-Aanpasbaar per run: zeg "met HR + CUSTOM prefixes"
-
-### Protected Paths
-```
-🛡️ Alle /materialen/ mappen (behalve R5)
-🛡️ MEO-map zelf
-🛡️ 2025-2026 bestanden (ter beoordeling)
+# Review report, then execute
+python scripts/graph-cleanup.py --execute
 ```
 
-## 📧 Output
+## The 8 Cleanup Rules
 
-Skill genereert:
+| Rule | What | Impact | Safety |
+|------|------|--------|--------|
+| R1 | Old PDF versions | Keep latest only | ✅ Low |
+| R2 | PSDs > 1 year | Move to Archive | ✅ Low |
+| R3 | Inactive projects | HR/WEB/INT + 2y old | ⚠️ Medium |
+| R4 | ARCHIEF marked | Deleted 3mo+ ago | ✅ Low |
+| R5 | Inactive clients | Entire folder > 2y | 🔴 High |
+| R6 | Large old files | > 200MB pre-2025 | ⚠️ Medium |
+| R7 | Log files | .log, .tmp, debug | ✅ Low |
+| R8 | System files | Thumbs.db, .DS_Store | ✅ Low |
 
-1. **Excel-rapport** (`Opruim_YYYYMMDD.xlsx`)
-   - Samenvatting per regel
-   - Top 20 zware bestanden
-   - Statistieken en opvallende items
+**Potential Savings:** ~17-20 GB per month
 
-2. **Email naar Steven** (steven@wijzijnmeo.nl)
-   - Samenvatting per regel
-   - Totaal vrijgemaakt
-   - Top 5 bestanden ter handmatige beoordeling
+## Protected Folders
 
-## 🧪 Test Cases
+These are NEVER deleted:
+- `materialenmappen/*` - Client original materials
+- `MEO/` - Organization root
+- `0 Standaard mappen & documenten/` - Standard templates
 
-3 evaluatie-prompts in `evals/evals.json`:
+Exception: R5 (inactive clients) can delete entire folder **if** truly inactive AND no protected subfolders exist.
 
-1. **dry_run_april_2026** - Volledige cleanup simulatie
-2. **pdf_versioning_rule1** - Valideer PDF-versiering logica
-3. **materiaal_protection** - Controleer Materialen-bescherming
+## Documentation
 
-Run via Cowork skill-testing.
+- **[SKILL.md](SKILL.md)** - Comprehensive skill documentation
+- **[README.md](README.md)** - User guide and quick reference
+- **[evals/](evals/)** - Test cases and evaluation criteria
 
-## 📁 Structure
+## Testing
 
+Run the evaluation suite:
+```bash
+python -m pytest evals/
 ```
-sharepoint-opruimenuurtje/
-├── SKILL.md              # Volledige skill instructies
-├── README.md             # MEO-specifieke gebruiksaanwijzing
-├── GITHUB_README.md      # Dit bestand (GitHub info)
-├── evals/
-│   └── evals.json        # Test cases
-├── LICENSE               # MIT
-├── .gitignore
-└── references/           # (Optional future: helper scripts)
-```
 
-## 🔧 Troubleshooting
+Expected: 3/3 tests pass
+- Dry-run analysis
+- Execution with error handling
+- Protection logic verification
 
-### Prefixes/suffixes aanpassen
-Zeg: `"opruim uurtje met HR + INT + CUSTOM prefixes"`
+## Configuration
 
-### Andere file-types voor R6
-Skill aanpassen in SKILL.md Regel 6 sectie
+Edit `config.json` to customize:
+- **Email recipients** (default: steven@wijzijnmeo.nl, joost@..., suzanne@...)
+- **Rules to apply** (default: all 8)
+- **Thresholds** (default: 2 years for inactivity, 1 year for PSDs)
+- **Schedule** (default: monthly on 1st at 02:00 UTC)
 
-### Dry-run voorbij laten gaan
-Na dry-run approval: `"voer echte cleanup uit"`
+## Safety
 
-## 🛠️ Development
+✅ **Dry-run before execute** - Always review first  
+✅ **Protected hierarchies** - Critical folders never touched  
+✅ **Reversible** - Deleted files in recycle bin for 93 days  
+✅ **Audit trail** - Excel reports document everything  
+✅ **Email confirmation** - All actions reported  
 
-Wil je de skill uitbreiden? Zie SKILL.md sectie "Tips voor Gebruik" voor customization patterns.
+⚠️ **R5 is powerful** - Inactive clients are completely removed. Review carefully.
 
-## 📝 Versie
+## Troubleshooting
 
-- **v1.0.0** - April 2026
-- MEO SharePoint Cleanup Skill
-- Status: Production-ready
+**"Authorization failed"**
+→ OAuth token expired. Re-run with `--auth` to re-authenticate
 
-## 📞 Support
+**"Folder not found"**
+→ Check that Klanten folders exist in SharePoint
 
-Vragen over de skill? Check SKILL.md sectie "Error Handling" en "Tips voor Gebruik".
+**"No files found to delete"**
+→ Your SharePoint is clean! All good.
 
----
+## API Details
 
-**Made with ❤️ for MEO** - Design & Communication Bureau
+Uses Microsoft Graph API endpoints:
+- `GET /sites/meoklanten/drive/root/children` - List folders
+- `GET /sites/meoklanten/drive/items/{id}/children` - List files
+- `DELETE /sites/meoklanten/drive/items/{id}` - Delete files
+
+Standard OAuth with delegated permissions (Files.ReadWrite.All on your site).
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details
+
+## Support
+
+Questions? See [SKILL.md](SKILL.md) for full documentation.
